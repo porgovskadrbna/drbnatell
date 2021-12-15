@@ -1,6 +1,6 @@
+import os
+
 TORTOISE_ORM = {
-    "connections": {
-        "default": "postgres://drbnatell:effort_unmarked_unexposed@michaljanocko.com:5432/drbnatell_dev",
-    },
+    "connections": {"default": os.getenv("DB_URL")},
     "apps": {"models": {"models": ["aerich.models", "models.tells"]}},
 }
