@@ -80,6 +80,7 @@ async def sent(
                 await image_file.write(content)
 
     background_tasks.add_task(process_image, filename, str(tell.id))
+    background_tasks.add_task(send_notification)
 
     return templates.TemplateResponse("sent.html", {"request": request})
 
@@ -114,10 +115,10 @@ def send_notification():
 
 def get_admin_auth(credentials: HTTPBasicCredentials = Depends(admin_auth)):
     correct_username = secrets.compare_digest(
-        os.getenv("USERNAME"), credentials.username
+        os.getenv("DRBNA_USERNAME"), credentials.username
     )
     correct_password = secrets.compare_digest(
-        os.getenv("PASSWORD"), credentials.password
+        os.getenv("DRBNA_PASSWORD"), credentials.password
     )
 
     if not (correct_username and correct_password):
