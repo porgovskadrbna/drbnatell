@@ -7,8 +7,8 @@ WORKDIR /app
 
 RUN pip install poetry
 
-COPY . .
-COPY .env .env
+COPY . /app
+COPY .env /app/.env
 
 RUN poetry install
 RUN sed -i s/_dev//g .env
