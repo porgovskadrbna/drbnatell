@@ -4,6 +4,8 @@ dotenv.load_dotenv()
 
 import io
 import os
+import requests
+import json
 import secrets
 import textwrap
 from uuid import UUID
@@ -90,6 +92,25 @@ def process_image(original_file: str, tell_id: str):
     os.remove(original_file)
 
 
+def send_notification():
+    headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": "Basic MGIxZTFkMWEtYTQ2OC00ZTRjLTliZDctOGMwYWQyNTczMmZh",
+    }
+    payload = {
+        "app_id": "d98c0f8f-e946-4ce1-96f2-adc89815c747",
+        "included_segments": ["Subscribed Users"],
+        "contents": {"en": "Novej drb je tu!"},
+        "headings": {"en": "Drbnatell"},
+    }
+
+    requests.post(
+        "https://onesignal.com/api/v1/notifications",
+        headers=headers,
+        data=json.dumps(payload),
+    )
+
+
 def get_admin_auth(credentials: HTTPBasicCredentials = Depends(admin_auth)):
     correct_username = secrets.compare_digest(
         os.getenv("USERNAME"), credentials.username
@@ -97,6 +118,12 @@ def get_admin_auth(credentials: HTTPBasicCredentials = Depends(admin_auth)):
     correct_password = secrets.compare_digest(
         os.getenv("PASSWORD"), credentials.password
     )
+
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Co tady sakra zkoušíš?",
+        )
 
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -111,13 +138,6 @@ async def admin(
     return templates.TemplateResponse(
         "admin.html", {"request": request, "tells": tells}
     )
-
-    if not (correct_username and correct_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
 
 
 @app.get("/picture-tell/{id}")

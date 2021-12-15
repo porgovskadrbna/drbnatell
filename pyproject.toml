@@ -14,6 +14,7 @@ python-multipart = "^0.0.5"
 Pillow = "^8.4.0"
 python-dotenv = "^0.19.2"
 aiofiles = "^0.8.0"
+requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.11b1"

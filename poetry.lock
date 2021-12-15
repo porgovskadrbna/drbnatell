@@ -576,7 +576,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "fbe973f5ab82b6740cb2520b5c8413b75b3b20b0acc7d5af014068a6adfc343f"
+content-hash = "fc3aaf1311c0dd1a630256492188d24624a22033e43ce4f67e3723d29409c1ca"
 
 [metadata.files]
 aerich = [

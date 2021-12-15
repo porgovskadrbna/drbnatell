@@ -1,26 +1,39 @@
-{% extends "page.html" %} {% block content %} {% for tell in tells %}
-<div class="tell">
-  <p>{{ tell.text }}</p>
-  {% if tell.has_image %}
-    <img src="{{ url_for('attachments', path=tell.id|string) }}.png" alt="" id="tell-preview" />
-  {% endif %}
-  <div class="icons">
-    {% if tell.has_image %}
-      <a href="{{ url_for('attachments', path=tell.id|string) }}.png">
-        <img
-          src="{{ url_for('static', path='img.svg') }}"
-          alt="Download attachment"
-          class="icon"
-        />
-      </a>
-    {% endif %}
-    <a href="/picture-tell/{{ tell.id }}">
-      <img
-        src="{{ url_for('static', path='download.svg') }}"
-        alt="Download tell"
-        class="icon"
-      />
-    </a>
-  </div>
-</div>
-{% endfor %} {% endblock %}
+{% extends "page.html" %}
+{% block content %}
+  <div class='onesignal-customlink-container'></div>
+  {% for tell in tells %}
+    <div class="tell">
+      <p>{{ tell.text }}</p>
+      {% if tell.has_image %}
+        <img src="{{ url_for('attachments', path=tell.id|string) }}.png" alt="" id="tell-preview" />
+      {% endif %}
+      <div class="icons">
+        {% if tell.has_image %}
+          <a href="{{ url_for('attachments', path=tell.id|string) }}.png">
+            <img
+              src="{{ url_for('static', path='img.svg') }}"
+              alt="Download attachment"
+              class="icon"
+            />
+          </a>
+        {% endif %}
+        <a href="/picture-tell/{{ tell.id }}">
+          <img
+            src="{{ url_for('static', path='download.svg') }}"
+            alt="Download tell"
+            class="icon"
+          />
+        </a>
+      </div>
+    </div>
+  {% endfor %}
+  <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+  <script>
+    window.OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+      OneSignal.init({
+        appId: "d98c0f8f-e946-4ce1-96f2-adc89815c747",
+      });
+    });
+  </script>
+{% endblock %}
