@@ -73,6 +73,7 @@ async def sent(
     extension = f".{image.filename.split('.')[-1]}"
     filename = f"uploads/{tell.id}{extension}"
 
+    print(image)
     if image is not None:
         async with aiofiles.open(filename, "wb") as image_file:
             while content := await image.read(1024):
