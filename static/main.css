@@ -1,0 +1,100 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Roboto Slab", serif;
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+#main {
+  width: 24em;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 6em 1em;
+}
+
+p {
+  color: gray;
+}
+
+p.sent {
+  color: black;
+  font-size: 0.9;
+  padding-bottom: 32px;
+}
+
+a {
+  color: gray;
+  text-decoration: inherit;
+}
+
+textarea {
+  resize: vertical;
+  font-size: 1.1rem;
+  padding: 0.4rem 0.6rem;
+  width: 100%;
+  margin-bottom: 1.2rem;
+  appearance: none;
+  border-radius: 0.25em;
+  border: 1px solid black;
+}
+
+textarea:focus {
+  border-width: 2px;
+}
+
+input {
+  margin-bottom: 1.2rem;
+}
+
+input[type="submit"],
+button {
+  color: white;
+  font-size: 1.1rem;
+  padding: 0.4rem 0.6rem;
+  width: 100%;
+  appearance: none;
+  border-radius: 0.25em;
+  background-color: black;
+  border: none;
+  cursor: pointer;
+}
+
+header {
+  padding-bottom: 32px;
+  top: 0;
+  z-index: 1;
+}
+
+h1 {
+  font-family: "Permanent Marker", cursive;
+  font-size: 32px;
+  font-weight: 400;
+  color: black;
+}
+
+.tell {
+  border: 1px solid black;
+  border-radius: 1em;
+  padding: 1em;
+  margin-bottom: 1.2em;
+}
+
+.tell #tell-preview {
+  border-radius: 0.5em;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.icons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5em;
+}
+
+.icon {
+  height: 2em;
+}
