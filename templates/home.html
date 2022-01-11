@@ -2,8 +2,10 @@
 {% block content %}
   <form action="sent" method="post" enctype="multipart/form-data">
     <textarea name="text" id="tell" rows="10"></textarea>
-    <p>Klidně dejte i obrázek</p>
-    <input type="file" name="image" accept="image/*" />
+    <details>
+      <summary>Klidně dejte i obrázek</summary>
+      <input type="file" name="image" accept="image/*" />
+    </details>
     <input type="submit" value="Odeslat" />
   </form>
 {% endblock %}

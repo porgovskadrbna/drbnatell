@@ -1,4 +1,5 @@
 import dotenv
+from pilmoji.core import P
 
 dotenv.load_dotenv()
 
@@ -26,7 +27,13 @@ from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from PIL import Image, ImageDraw, ImageFont
+from starlette import status
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+from starlette.types import ASGIApp
+from PIL import Image, ImageFont
+from pilmoji import Pilmoji
 from tortoise.contrib.fastapi import register_tortoise
 
 import db
@@ -63,24 +70,28 @@ async def sent(request: Request):
 async def sent(
     request: Request,
     background_tasks: BackgroundTasks,
-    text: str = Form(None),
+    text: str = Form(...),
     image: UploadFile = File(None),
 ):
     if not text:
         return RedirectResponse("/")
 
-    tell = await Tells.create(text=text, has_image=bool(image))
+    image.file.seek(0, io.SEEK_END)
+    has_image = image.file.tell() > 0
+    image.file.seek(0)
+
+    tell = await Tells.create(text=text, has_image=has_image)
     extension = f".{image.filename.split('.')[-1]}"
     filename = f"uploads/{tell.id}{extension}"
 
-    print(image)
-    if image is not None:
+    if has_image:
         async with aiofiles.open(filename, "wb") as image_file:
             while content := await image.read(1024):
                 await image_file.write(content)
 
-    background_tasks.add_task(process_image, filename, str(tell.id))
-    background_tasks.add_task(send_notification)
+        background_tasks.add_task(process_image, filename, str(tell.id))
+
+    # background_tasks.add_task(send_notification)
 
     return templates.TemplateResponse("sent.html", {"request": request})
 
@@ -88,8 +99,8 @@ async def sent(
 def process_image(original_file: str, tell_id: str):
     new_file = f"attachments/{tell_id}.png"
 
-    image = Image.open(original_file)
-    image.save(new_file)
+    with Image.open(original_file) as image:
+        image.save(new_file)
 
     os.remove(original_file)
 
@@ -147,15 +158,19 @@ async def picture_tell(id: UUID):
     tell = await TellResponse.from_queryset_single(Tells.get(id=id))
     text = textwrap.fill(tell.text, 56, break_long_words=False)
 
-    font = ImageFont.truetype("notosans.ttf", 18)
+    font = ImageFont.truetype(
+        "notosans.ttf", 36, layout_engine="raqm", encoding="unic"
+    )
     print(len(text.splitlines()))
     image = Image.new(
         mode="RGB",
-        size=(600, 100 + len(text.splitlines()) * 25),
+        size=(1200, 200 + len(text.splitlines()) * 50),
         color="#1a222d",
     )
-    draw = ImageDraw.Draw(image)
-    draw.text((50, 50), text, font=font, fill="white", spacing=5)
+
+    with Pilmoji(image) as pilmoji:
+        pilmoji.text((100, 100), text, font=font, fill="white", spacing=10)
+
     buf = io.BytesIO()
     image.save(buf, "JPEG")
     buf.seek(0)
