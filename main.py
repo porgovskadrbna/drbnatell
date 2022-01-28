@@ -157,18 +157,18 @@ async def admin(
 @app.get("/picture-tell/{id}")
 async def picture_tell(id: UUID):
     tell = await TellResponse.from_queryset_single(Tells.get(id=id))
-    text = textwrap.fill(tell.text, 56, break_long_words=False)
+    text = textwrap.fill(tell.text, 50, break_long_words=False)
 
-    font = ImageFont.truetype("notosans.ttf", 36, layout_engine="raqm", encoding="unic")
+    font = ImageFont.truetype("notosans.ttf", 42, layout_engine="raqm", encoding="unic")
     print(len(text.splitlines()))
     image = Image.new(
         mode="RGB",
-        size=(1200, 200 + len(text.splitlines()) * 50),
+        size=(1200, 160 + len(text.splitlines()) * 60),
         color="#1a222d",
     )
 
     with Pilmoji(image) as pilmoji:
-        pilmoji.text((100, 100), text, font=font, fill="white", spacing=10)
+        pilmoji.text((80, 80), text, font=font, fill="white", spacing=10)
 
     buf = io.BytesIO()
     image.save(buf, "JPEG")
