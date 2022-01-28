@@ -1,5 +1,6 @@
 {% extends "page.html" %}
 {% block content %}
+  <p class="gray">Zatím jste poslali {{ count }} drbů</p>
   <form action="sent" method="post" enctype="multipart/form-data">
     <textarea name="text" id="tell" rows="10" required></textarea>
     <details>

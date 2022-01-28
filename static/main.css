@@ -17,13 +17,16 @@ body {
   padding: 6em 1em;
 }
 
-p.sent {
+p {
   font-size: 0.9;
   padding-bottom: 32px;
 }
 
 a {
   text-decoration: inherit;
+}
+
+.gray {
   color: gray;
 }
 

@@ -4,36 +4,41 @@ from pilmoji.core import Pilmoji
 dotenv.load_dotenv()
 
 import io
-import os
-import httpx
 import json
+import os
 import secrets
 import textwrap
 from uuid import UUID
 
 import aiofiles
+import httpx
 from fastapi import (
     BackgroundTasks,
+    Depends,
     FastAPI,
     File,
     Form,
+    HTTPException,
     Request,
     UploadFile,
-    Depends,
-    HTTPException,
     status,
 )
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse, FileResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    RedirectResponse,
+    StreamingResponse,
+)
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from PIL import Image, ImageFont
+from pilmoji import Pilmoji
 from starlette import status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
-from PIL import Image, ImageFont
-from pilmoji import Pilmoji
 from tortoise.contrib.fastapi import register_tortoise
 
 import db
@@ -64,7 +69,11 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("home.html", {"request": request})
+    count = await Tells.all().count()
+
+    return templates.TemplateResponse(
+        "home.html", {"request": request, "count": count + 1824}
+    )
 
 
 @app.get("/sent", response_class=HTMLResponse)
@@ -122,7 +131,7 @@ def send_notification():
         data={
             "title": "Drbna",
             "message": "Novej drb je tu",
-            "url": "https://porgovskadrbna.cz/admin"
+            "url": "https://porgovskadrbna.cz/admin",
         },
     )
 
