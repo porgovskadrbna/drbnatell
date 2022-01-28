@@ -23,7 +23,7 @@ from fastapi import (
     HTTPException,
     status,
 )
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse, FileResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -51,6 +51,12 @@ app.mount(
     StaticFiles(directory="attachments"),
     name="attachments",
 )
+
+
+@app.get("/sw.js")
+async def swjs():
+    return FileResponse("static/sw.js")
+
 
 admin_auth = HTTPBasic()
 templates = Jinja2Templates(directory="templates")
