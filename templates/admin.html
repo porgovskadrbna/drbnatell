@@ -8,11 +8,11 @@
       {% endif %}
       <div class="icons">
         {% if tell.has_image %}
-          <a href="/attachments/{{ tell.id|string }}.png">
+          <a href="/attachments/{{ tell.id|string }}.png" download="{{ tell.id|string }}.png">
             <img src="/static/img.svg" alt="Download attachment" class="icon" />
           </a>
         {% endif %}
-        <a href="/picture-tell/{{ tell.id }}">
+        <a href="/picture-tell/{{ tell.id }}" download="{{ tell.id|string }}.png">
           <img src="/static/download.svg" alt="Download tell" class="icon" />
         </a>
       </div>
