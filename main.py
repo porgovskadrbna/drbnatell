@@ -1,11 +1,11 @@
 import dotenv
-from pilmoji.core import P
+from pilmoji.core import Pilmoji
 
 dotenv.load_dotenv()
 
 import io
 import os
-import requests
+import httpx
 import json
 import secrets
 import textwrap
@@ -91,7 +91,7 @@ async def sent(
 
         background_tasks.add_task(process_image, filename, str(tell.id))
 
-    # background_tasks.add_task(send_notification)
+    background_tasks.add_task(send_notification)
 
     return templates.TemplateResponse("sent.html", {"request": request})
 
@@ -107,20 +107,17 @@ def process_image(original_file: str, tell_id: str):
 
 def send_notification():
     headers = {
-        "Content-Type": "application/json; charset=utf-8",
-        "Authorization": "Basic MGIxZTFkMWEtYTQ2OC00ZTRjLTliZDctOGMwYWQyNTczMmZh",
-    }
-    payload = {
-        "app_id": "d98c0f8f-e946-4ce1-96f2-adc89815c747",
-        "included_segments": ["Subscribed Users"],
-        "contents": {"en": "Novej drb je tu!"},
-        "headings": {"en": "Drbnatell"},
+        "Authorization": "api_key=a21168592045add8420ed42f18c9b5da",
     }
 
-    requests.post(
-        "https://onesignal.com/api/v1/notifications",
+    httpx.post(
+        "https://api.pushalert.co/rest/v1/send",
         headers=headers,
-        data=json.dumps(payload),
+        data={
+            "title": "Drbna",
+            "message": "Novej drb je tu",
+            "url": "https://porgovskadrbna.cz/admin"
+        },
     )
 
 
@@ -144,9 +141,7 @@ async def admin(
     request: Request,
     _=Depends(get_admin_auth),
 ):
-    tells = await TellResponse.from_queryset(
-        Tells.all().order_by("-created_at")
-    )
+    tells = await TellResponse.from_queryset(Tells.all().order_by("-created_at"))
 
     return templates.TemplateResponse(
         "admin.html", {"request": request, "tells": tells}
@@ -158,9 +153,7 @@ async def picture_tell(id: UUID):
     tell = await TellResponse.from_queryset_single(Tells.get(id=id))
     text = textwrap.fill(tell.text, 56, break_long_words=False)
 
-    font = ImageFont.truetype(
-        "notosans.ttf", 36, layout_engine="raqm", encoding="unic"
-    )
+    font = ImageFont.truetype("notosans.ttf", 36, layout_engine="raqm", encoding="unic")
     print(len(text.splitlines()))
     image = Image.new(
         mode="RGB",

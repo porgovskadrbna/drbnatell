@@ -1,12 +1,13 @@
+body {
+  background-color: #12171f;
+  color: white;
+}
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-family: "Roboto Slab", serif;
-}
-
-[x-cloak] {
-  display: none !important;
 }
 
 #main {
@@ -16,22 +17,19 @@
   padding: 6em 1em;
 }
 
-p {
-  color: gray;
-}
-
 p.sent {
-  color: black;
   font-size: 0.9;
   padding-bottom: 32px;
 }
 
 a {
-  color: gray;
   text-decoration: inherit;
+  color: gray;
 }
 
 textarea {
+  background-color: #222e3f;
+  color: white;
   resize: vertical;
   font-size: 1.1rem;
   padding: 0.4rem 0.6rem;
@@ -55,7 +53,7 @@ button {
   margin-bottom: 1.2rem;
   appearance: none;
   border-radius: 0.25em;
-  background-color: black;
+  background-color: #222e3f;
   border: none;
   cursor: pointer;
 }
@@ -73,7 +71,7 @@ header {
 h1 {
   font-family: "Permanent Marker", cursive;
   font-size: 32px;
-  color: black;
+  color: white;
 }
 
 h1,
@@ -82,7 +80,7 @@ h4 {
 }
 
 .tell {
-  border: 1px solid black;
+  background-color: #222e3f;
   border-radius: 1em;
   padding: 1em;
   margin-bottom: 1.2em;
@@ -101,5 +99,6 @@ h4 {
 }
 
 .icon {
-  height: 2em;
+  height: 1.5em;
+  filter: invert(1);
 }

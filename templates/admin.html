@@ -1,6 +1,5 @@
 {% extends "page.html" %}
 {% block content %}
-  <div class='onesignal-customlink-container'></div>
   {% for tell in tells %}
     <div class="tell">
       <p>{{ tell.text }}</p>
@@ -19,13 +18,12 @@
       </div>
     </div>
   {% endfor %}
-  <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
-  <script>
-    window.OneSignal = window.OneSignal || [];
-    OneSignal.push(function() {
-      OneSignal.init({
-        appId: "d98c0f8f-e946-4ce1-96f2-adc89815c747",
-      });
-    });
+  <script type="text/javascript">
+    (function(d, t) {
+      var g = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+      g.src = "https://cdn.pushalert.co/integrate_f152d658286aee4327c2916c3ab95b67.js";
+      s.parentNode.insertBefore(g, s);
+    }(document, "script"));
   </script>
 {% endblock %}

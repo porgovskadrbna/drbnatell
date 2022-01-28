@@ -1,7 +1,7 @@
 {% extends "page.html" %}
 {% block content %}
   <form action="sent" method="post" enctype="multipart/form-data">
-    <textarea name="text" id="tell" rows="10"></textarea>
+    <textarea name="text" id="tell" rows="10" required></textarea>
     <details>
       <summary>Klidně dejte i obrázek</summary>
       <input type="file" name="image" accept="image/*" />
