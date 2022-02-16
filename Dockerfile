@@ -1,9 +1,11 @@
-FROM python:3
+FROM python:3.9-bullseye
 
 EXPOSE 80
 
 WORKDIR /app
 
+RUN apt-get update
+RUN apt-get install -y ffmpeg
 RUN pip install poetry
 
 COPY . /app
