@@ -106,17 +106,17 @@ async def sent(
             extension = f".{media.filename.split('.')[-1]}"
             filename = f"uploads/{tell.id}{extension}"
     else:
-        tell = Tells.create(text=text)
+        tell = await Tells.create(text=text)
 
     if has_media:
         async with aiofiles.open(filename, "wb") as image_file:
             while content := await media.read(1024):
                 await image_file.write(content)
 
-    if media.content_type.startswith("image/"):
-        background_tasks.add_task(process_image, filename, str(tell.id))
-    elif media.content_type.startswith("video/"):
-        background_tasks.add_task(process_video, filename, str(tell.id))
+        if media.content_type.startswith("image/"):
+            background_tasks.add_task(process_image, filename, str(tell.id))
+        elif media.content_type.startswith("video/"):
+            background_tasks.add_task(process_video, filename, str(tell.id))
 
     background_tasks.add_task(send_notification)
 
