@@ -6,7 +6,8 @@ from tortoise.models import Model
 class Tells(Model):
     id = fields.UUIDField(pk=True)
     text = fields.TextField()
-    has_image = fields.BooleanField()
+    has_image = fields.BooleanField(default=False)
+    has_video = fields.BooleanField(default=False)
     created_at = fields.DatetimeField(auto_now_add=True)
 
     class PydanticMeta:

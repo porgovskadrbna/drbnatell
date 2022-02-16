@@ -12,6 +12,11 @@
             <img src="/static/img.svg" alt="Download attachment" class="icon" />
           </a>
         {% endif %}
+        {% if tell.has_video %}
+          <a href="/attachments/{{ tell.id|string }}.mp4" download="{{ tell.id|string }}.png">
+            <img src="/static/video.svg" alt="Download attachment" class="icon" />
+          </a>
+        {% endif %}
         <a href="/picture-tell/{{ tell.id }}" download="{{ tell.id|string }}.png">
           <img src="/static/download.svg" alt="Download tell" class="icon" />
         </a>

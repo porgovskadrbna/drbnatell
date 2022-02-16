@@ -3,6 +3,7 @@ from pilmoji.core import Pilmoji
 
 dotenv.load_dotenv()
 
+import ffmpy
 import io
 import json
 import os
@@ -86,25 +87,36 @@ async def sent(
     request: Request,
     background_tasks: BackgroundTasks,
     text: str = Form(...),
-    image: UploadFile = File(None),
+    media: UploadFile = File(None),
 ):
     if not text:
         return RedirectResponse("/")
 
-    image.file.seek(0, io.SEEK_END)
-    has_image = image.file.tell() > 0
-    image.file.seek(0)
+    media.file.seek(0, io.SEEK_END)
+    has_media = media.file.tell() > 0
+    media.file.seek(0)
 
-    tell = await Tells.create(text=text, has_image=has_image)
-    extension = f".{image.filename.split('.')[-1]}"
-    filename = f"uploads/{tell.id}{extension}"
+    if has_media:
+        if media.content_type.startswith("image/"):
+            tell = await Tells.create(text=text, has_image=True)
+            extension = f".{media.filename.split('.')[-1]}"
+            filename = f"uploads/{tell.id}{extension}"
+        elif media.content_type.startswith("video/"):
+            tell = await Tells.create(text=text, has_video=True)
+            extension = f".{media.filename.split('.')[-1]}"
+            filename = f"uploads/{tell.id}{extension}"
+    else:
+        tell = Tells.create(text=text)
 
-    if has_image:
+    if has_media:
         async with aiofiles.open(filename, "wb") as image_file:
-            while content := await image.read(1024):
+            while content := await media.read(1024):
                 await image_file.write(content)
 
+    if media.content_type.startswith("image/"):
         background_tasks.add_task(process_image, filename, str(tell.id))
+    elif media.content_type.startswith("video/"):
+        background_tasks.add_task(process_video, filename, str(tell.id))
 
     background_tasks.add_task(send_notification)
 
@@ -116,6 +128,14 @@ def process_image(original_file: str, tell_id: str):
 
     with Image.open(original_file) as image:
         image.save(new_file)
+
+    os.remove(original_file)
+
+
+def process_video(original_file: str, tell_id: str):
+    new_file = f"attachments/{tell_id}.mp4"
+
+    ffmpy.FFmpeg(inputs={original_file: None}, outputs={new_file: None}).run()
 
     os.remove(original_file)
 
@@ -156,7 +176,9 @@ async def admin(
     request: Request,
     _=Depends(get_admin_auth),
 ):
-    tells = await TellResponse.from_queryset(Tells.all().order_by("-created_at"))
+    tells = await TellResponse.from_queryset(
+        Tells.all().order_by("-created_at")
+    )
 
     return templates.TemplateResponse(
         "admin.html", {"request": request, "tells": tells}
@@ -168,7 +190,9 @@ async def picture_tell(id: UUID):
     tell = await TellResponse.from_queryset_single(Tells.get(id=id))
     text = textwrap.fill(tell.text, 50, break_long_words=False)
 
-    font = ImageFont.truetype("notosans.ttf", 42, layout_engine="raqm", encoding="unic")
+    font = ImageFont.truetype(
+        "notosans.ttf", 42, layout_engine="raqm", encoding="unic"
+    )
     print(len(text.splitlines()))
     image = Image.new(
         mode="RGB",
