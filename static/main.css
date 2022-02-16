@@ -55,6 +55,7 @@ button {
   width: 100%;
   margin-bottom: 1.2rem;
   appearance: none;
+  -webkit-appearance: none;
   border-radius: 0.25em;
   background-color: #222e3f;
   border: none;
