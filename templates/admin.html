@@ -4,7 +4,7 @@
     <div class="tell">
       <p>{{ tell.text }}</p>
       {% if tell.has_image %}
-        <img src="/attachments/{{ tell.id|string }}.png" alt="" id="tell-preview" />
+        <img src="/attachments/{{ tell.id|string }}.png" alt="" id="tell-preview" loading="lazy" />
       {% endif %}
       <div class="icons">
         {% if tell.has_image %}
