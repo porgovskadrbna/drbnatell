@@ -3,7 +3,6 @@ from pilmoji.core import Pilmoji
 
 dotenv.load_dotenv()
 
-import ffmpy
 import io
 import json
 import os
@@ -12,6 +11,7 @@ import textwrap
 from uuid import UUID
 
 import aiofiles
+import ffmpy
 import httpx
 from fastapi import (
     BackgroundTasks,
@@ -35,11 +35,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from PIL import Image, ImageFont
 from pilmoji import Pilmoji
-from starlette import status
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
-from starlette.responses import Response
-from starlette.types import ASGIApp
 from tortoise.contrib.fastapi import register_tortoise
 
 import db
