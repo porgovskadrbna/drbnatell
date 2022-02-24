@@ -183,12 +183,14 @@ async def admin(
 @app.get("/picture-tell/{id}")
 async def picture_tell(id: UUID):
     tell = await TellResponse.from_queryset_single(Tells.get(id=id))
-    text = textwrap.fill(tell.text, 50, break_long_words=False)
+    text = textwrap.fill(
+        tell.text, 50, break_long_words=False, replace_whitespace=False
+    )
 
     font = ImageFont.truetype(
         "notosans.ttf", 42, layout_engine="raqm", encoding="unic"
     )
-    print(len(text.splitlines()))
+
     image = Image.new(
         mode="RGB",
         size=(1200, 160 + len(text.splitlines()) * 60),
