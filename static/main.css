@@ -41,6 +41,7 @@ textarea {
   appearance: none;
   border-radius: 0.25em;
   border: 1px solid black;
+  white-space: pre-wrap;
 }
 
 textarea:focus {
