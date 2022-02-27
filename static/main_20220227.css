@@ -110,3 +110,21 @@ h4 {
   height: 1.5em;
   filter: invert(1);
 }
+
+#links {
+  padding-top: 1em;
+}
+
+#links p {
+  padding-bottom: 0.8em;
+}
+
+#links a {
+  color: grey;
+  border-bottom: 2px dotted grey;
+  padding-bottom: 0.1em;
+}
+
+#links a:hover {
+  border-bottom-style: solid;
+}
