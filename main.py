@@ -4,7 +4,6 @@ from pilmoji.core import Pilmoji
 dotenv.load_dotenv()
 
 import io
-import json
 import os
 import secrets
 import textwrap
