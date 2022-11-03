@@ -17,5 +17,7 @@ RUN sed -i s/_dev//g .env
 
 RUN poetry run aerich upgrade
 
+RUN mkdir uploads
+
 VOLUME [ "/attachments" ]
 CMD [ "poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80" ]
