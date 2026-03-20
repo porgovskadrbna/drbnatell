@@ -1,6 +1,7 @@
 # Drbna
-uploads/*
-attachments/*
+data/uploads/*
+data/attachments/*
+data/drbnatell.db*
 !**/.gitkeep
 
 # Byte-compiled / optimized / DLL files

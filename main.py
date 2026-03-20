@@ -1,8 +1,3 @@
-import dotenv
-from pilmoji.core import Pilmoji
-
-dotenv.load_dotenv()
-
 import io
 import os
 import secrets
@@ -10,13 +5,13 @@ import textwrap
 from uuid import UUID
 
 import aiofiles
+import dotenv
 import ffmpy
 import httpx
 from fastapi import (
     BackgroundTasks,
     Depends,
     FastAPI,
-    File,
     Form,
     HTTPException,
     Request,
@@ -36,8 +31,9 @@ from PIL import Image, ImageFont
 from pilmoji import Pilmoji
 from tortoise.contrib.fastapi import register_tortoise
 
-import db
 from models.tells import TellResponse, Tells
+
+dotenv.load_dotenv()
 
 app = FastAPI()
 
@@ -48,7 +44,7 @@ app.mount(
 )
 app.mount(
     "/attachments",
-    StaticFiles(directory="attachments"),
+    StaticFiles(directory="data/attachments"),
     name="attachments",
 )
 
@@ -72,7 +68,7 @@ async def home(request: Request):
 
 
 @app.get("/sent", response_class=HTMLResponse)
-async def sent(request: Request):
+async def sent_empty(request: Request):
     return templates.TemplateResponse("sent.html", {"request": request})
 
 
@@ -80,29 +76,29 @@ async def sent(request: Request):
 async def sent(
     request: Request,
     background_tasks: BackgroundTasks,
+    media: UploadFile,
     text: str = Form(...),
-    media: UploadFile = File(None),
 ):
     if not text:
         return RedirectResponse("/")
 
-    media.file.seek(0, io.SEEK_END)
-    has_media = media.file.tell() > 0
-    media.file.seek(0)
-
-    if has_media:
+    if (
+        media.size is not None
+        and media.size > 0
+        and media.content_type is not None
+        and media.filename is not None
+    ):
         if media.content_type.startswith("image/"):
             tell = await Tells.create(text=text, has_image=True)
             extension = f".{media.filename.split('.')[-1]}"
-            filename = f"uploads/{tell.id}{extension}"
+            filename = f"data/uploads/{tell.id}{extension}"
         elif media.content_type.startswith("video/"):
             tell = await Tells.create(text=text, has_video=True)
             extension = f".{media.filename.split('.')[-1]}"
-            filename = f"uploads/{tell.id}{extension}"
-    else:
-        tell = await Tells.create(text=text)
+            filename = f"data/uploads/{tell.id}{extension}"
+        else:
+            return RedirectResponse("/", status_code=303)
 
-    if has_media:
         async with aiofiles.open(filename, "wb") as image_file:
             while content := await media.read(1024):
                 await image_file.write(content)
@@ -112,13 +108,16 @@ async def sent(
         elif media.content_type.startswith("video/"):
             background_tasks.add_task(process_video, filename, str(tell.id))
 
+    else:
+        tell = await Tells.create(text=text)
+
     background_tasks.add_task(send_notification)
 
     return templates.TemplateResponse("sent.html", {"request": request})
 
 
 def process_image(original_file: str, tell_id: str):
-    new_file = f"attachments/{tell_id}.png"
+    new_file = f"data/attachments/{tell_id}.png"
 
     with Image.open(original_file) as image:
         image.save(new_file)
@@ -127,16 +126,30 @@ def process_image(original_file: str, tell_id: str):
 
 
 def process_video(original_file: str, tell_id: str):
-    new_file = f"attachments/{tell_id}.mp4"
+    new_file = f"data/attachments/{tell_id}.mp4"
 
-    ffmpy.FFmpeg(inputs={original_file: None}, outputs={new_file: None}).run()
+    ffmpy.FFmpeg(
+        inputs={original_file: None},
+        outputs={
+            new_file: [
+                "-c:v",
+                "libx264",
+                "-preset",
+                "ultrafast",
+                "-c:a",
+                "aac",
+                "-movflags",
+                "+faststart",
+            ]
+        },
+    ).run()
 
     os.remove(original_file)
 
 
 def send_notification():
     headers = {
-        "Authorization": "api_key=a21168592045add8420ed42f18c9b5da",
+        "Authorization": f"api_key={os.environ['PUSHALERT_API_KEY']}",
     }
 
     httpx.post(
@@ -152,10 +165,12 @@ def send_notification():
 
 def get_admin_auth(credentials: HTTPBasicCredentials = Depends(admin_auth)):
     correct_username = secrets.compare_digest(
-        os.getenv("DRBNA_USERNAME"), credentials.username
+        bytes(os.environ["DRBNA_USERNAME"], "utf-8"),
+        bytes(credentials.username, "utf-8"),
     )
     correct_password = secrets.compare_digest(
-        os.getenv("DRBNA_PASSWORD"), credentials.password
+        bytes(os.environ["DRBNA_PASSWORD"], "utf-8"),
+        bytes(credentials.password, "utf-8"),
     )
 
     if not (correct_username and correct_password):
@@ -170,9 +185,7 @@ async def admin(
     request: Request,
     _=Depends(get_admin_auth),
 ):
-    tells = await TellResponse.from_queryset(
-        Tells.all().order_by("-created_at")
-    )
+    tells = await TellResponse.from_queryset(Tells.all().order_by("-created_at"))
 
     return templates.TemplateResponse(
         "admin.html", {"request": request, "tells": tells}
@@ -183,11 +196,14 @@ async def admin(
 async def picture_tell(id: UUID):
     tell = await TellResponse.from_queryset_single(Tells.get(id=id))
     text = textwrap.fill(
-        tell.text, 50, break_long_words=False, replace_whitespace=False
+        tell.text,  # pyright: ignore[reportAttributeAccessIssue]
+        50,
+        break_long_words=False,
+        replace_whitespace=False,
     )
 
     font = ImageFont.truetype(
-        "notosans.ttf", 42, layout_engine="raqm", encoding="unic"
+        "notosans.ttf", 42, layout_engine=ImageFont.Layout.RAQM, encoding="unic"
     )
 
     image = Image.new(
@@ -208,7 +224,9 @@ async def picture_tell(id: UUID):
 
 register_tortoise(
     app,
-    config=db.TORTOISE_ORM,
+    config={
+        "connections": {"default": "sqlite://data/drbnatell.db"},
+        "apps": {"models": {"models": ["models.tells"]}},
+    },
     generate_schemas=True,
-    add_exception_handlers=True,
 )

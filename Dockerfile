@@ -1,23 +1,15 @@
-FROM python:3.9-bullseye
+FROM python:3.14-trixie
 
 EXPOSE 80
 
 WORKDIR /app
 
-RUN apt-get update
-RUN apt-get install -y ffmpeg
-RUN pip install poetry
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg
+RUN pip install uv
 
 COPY . /app
 
-RUN poetry install
+RUN uv sync
 
-COPY .env /app/.env
-RUN sed -i s/_dev//g .env
-
-RUN poetry run aerich upgrade
-
-RUN mkdir uploads
-
-VOLUME [ "/attachments" ]
-CMD [ "poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80" ]
+VOLUME [ "/app/data", "/app/.env" ]
+CMD [ "uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80" ]

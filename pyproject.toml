@@ -1,28 +1,22 @@
-[tool.poetry]
-name = "Drbnatell"
+[project]
+name = "drbnatell"
 version = "0.1.0"
-description = ""
-authors = ["Michal Janočko <michal@janocko.com>"]
-license = "AGPL-3.0"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "aiofiles>=25.1.0",
+    "fastapi[standard]>=0.135.1",
+    "ffmpy>=1.0.0",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "pillow>=12.1.1",
+    "pilmoji>=2.0.5",
+    "python-dotenv>=1.2.2",
+    "python-multipart>=0.0.22",
+    "tortoise-orm>=1.1.6",
+]
 
-[tool.poetry.dependencies]
-python = "^3.9"
-fastapi = { extras = ["all"], version = "^0.70.0" }
-tortoise-orm = { extras = ["asyncpg"], version = "^0.17.8" }
-Jinja2 = "^3.0.3"
-python-multipart = "^0.0.5"
-Pillow = "^8.4.0"
-aiofiles = "^0.8.0"
-pilmoji = "^2.0.1"
-python-dotenv = "^0.19.2"
-httpx = "^0.22.0"
-ffmpy = "^0.3.0"
-
-[tool.poetry.dev-dependencies]
-black = "^21.11b1"
-aerich = "^0.5.8"
-isort = "^5.10.1"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "ruff>=0.15.7",
+]

@@ -1,0 +1,10 @@
+services:
+  drbnatell:
+    build:
+      context: .
+      network: host
+    ports:
+      - "3726:80"
+    volumes:
+      - /var/www/porgovskadrbna/drbnatell/data/:/app/data/
+      - ./.env:/app/.env
